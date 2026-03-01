@@ -33,9 +33,9 @@ if "all_chunks" not in st.session_state:
     st.session_state.all_chunks = []
 
 
-# ==========================================
+
 # 2. PIPELINE FUNCTIONS
-# ==========================================
+
 def process_pdf(uploaded_file):
     """Reads the PDF and dynamically calculates the optimal chunk size."""
     reader = PdfReader(uploaded_file)
@@ -165,43 +165,64 @@ def ask_pdf(user_query):
         return f"API Error: {e}"
 
 
-# ==========================================
-# 3. USER INTERFACE
-# ==========================================
-st.title("📄 Dynamic Document AI")
-st.markdown("Upload any PDF, and the pipeline will automatically optimize its processing strategy.")
 
-# Sidebar for file upload
+# 3. -------------------------------USER INTERFACE-----------------------------------
+
+# Sidebar Configuration
 with st.sidebar:
-    st.header("Upload Document")
+    st.image("https://cdn-icons-png.flaticon.com/512/3135/3135679.png", width=50)
+    st.header("Document Control")
+    st.markdown("Upload a file to initialize the Hybrid RAG pipeline.")
+
     uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
 
-    if uploaded_file and st.button("Process PDF"):
+    if uploaded_file and st.button("🚀 Process PDF", use_container_width=True):
         with st.spinner("Extracting text and calculating density..."):
             chunks = process_pdf(uploaded_file)
         with st.spinner("Building Vector & Keyword Indexes in RAM..."):
             build_indexes(chunks)
-        st.success("Ready to chat!")
+        st.success("Database built successfully!")
+
+    st.divider()
+    if st.button("🗑️ Clear Chat History", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
 
 # Main Chat Interface
 if st.session_state.is_processed:
-    # Render chat history
+
+    # Empty State Welcome Message
+    if len(st.session_state.messages) == 0:
+        st.markdown("### 👋 Welcome to your AI Assistant")
+        st.markdown("I have read your document. Ask me anything about it!")
+
+    # Render chat history with custom avatars
     for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
+        avatar_icon = "🧑‍💻" if message["role"] == "user" else "✨"
+        with st.chat_message(message["role"], avatar=avatar_icon):
             st.markdown(message["content"])
 
     # Chat input
     if user_query := st.chat_input("Ask a question about your PDF..."):
         # Display user message
-        with st.chat_message("user"):
+        with st.chat_message("user", avatar="🧑‍💻"):
             st.markdown(user_query)
         st.session_state.messages.append({"role": "user", "content": user_query})
 
         # Generate and display bot response
-        with st.chat_message("assistant"):
+        with st.chat_message("assistant", avatar="✨"):
             with st.spinner("Searching dynamic index..."):
                 bot_answer = ask_pdf(user_query)
                 st.markdown(bot_answer)
+
+                # An expander showing the backend process
+                with st.expander("🔍 View Search Process"):
+                    st.caption("The Hybrid pipeline executed a Vector + Keyword search to generate this answer.")
+
         st.session_state.messages.append({"role": "assistant", "content": bot_answer})
 else:
-    st.info("👈 Please upload and process a PDF in the sidebar to begin.")
+    # empty state before the user uploads a PDF
+    st.markdown("<h1 style='text-align: center; color: #00FFAA;'>📄 Dynamic Document AI</h1>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Upload a PDF in the sidebar to begin.</p>", unsafe_allow_html=True)
+    st.info(
+        "💡 **Architecture Note:** This system uses Reciprocal Rank Fusion to combine ChromaDB semantic search with BM25 keyword search.")
