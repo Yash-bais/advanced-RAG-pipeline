@@ -6,6 +6,9 @@ import chromadb
 from chromadb.utils import embedding_functions
 from rank_bm25 import BM25Okapi
 from openai import OpenAI
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # 1. SETUP & CONFIGURATION
 
