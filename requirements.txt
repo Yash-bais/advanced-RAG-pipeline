@@ -4,3 +4,4 @@ pypdf
 rank_bm25
 openai
 python-dotenv
+sentence-transformers
