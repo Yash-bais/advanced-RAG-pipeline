@@ -2,6 +2,11 @@
 
 An advanced Retrieval-Augmented Generation (RAG) system built to dynamically process, index, and query unstructured PDF documents using Hybrid Search and a Streamlit UI.
 
+## Pipeline:
+
+![Architecture Diagram](architecture.png)
+
+
 ## 🚀 Key Engineering Features
 
 * **Hybrid Search Architecture (RRF):** Implemented Reciprocal Rank Fusion to mathematically merge dense vector retrieval (Semantic/ChromaDB) with sparse keyword retrieval (BM25). This eliminates the "hallucinations" and "lost context" common in basic RAG systems.
