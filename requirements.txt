@@ -5,3 +5,4 @@ rank_bm25
 openai
 python-dotenv
 sentence-transformers
+protobuf==4.25.3
